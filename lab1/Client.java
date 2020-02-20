@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 /**
  * > java Client <host> <port> <oper> <opnd>*
@@ -44,14 +45,14 @@ public class Client {
         client.destroy();
     }
 
-    public void create(String[] args) {
+    private void create(String[] args) throws IOException {
         // create socket, port and InetAddress
         this.socket = new DatagramSocket();
         this.port = Integer.parseInt(args[1]);
         this.address = InetAddress.getByName(args[0]);
     }
 
-    private void sendPacket(String message) {
+    private void sendPacket(String message) throws IOException {
         // create buffer
         byte[] buf = message.getBytes();
         // create packet
@@ -60,7 +61,7 @@ public class Client {
         this.socket.send(packet);
     }
 
-    private void receivePacket() {
+    private void receivePacket() throws IOException {
         // create buffer
         byte[] buf = new byte[256];
         // create packet
