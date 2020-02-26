@@ -84,15 +84,15 @@ public class Server {
 
                 return response;
             } else {
+
                 return null;
             }
         } else if (tokens[0].equals("lookup")) {
-            String name;
 
             if (this.table.containsKey(tokens[1]) == false) {
                 return null;
             } else {
-                response = tokens[1] + " " + table.get(tokens[1]);
+                response = tokens[1] + " " + this.table.get(tokens[1]);
                 
                 return response;
             }
