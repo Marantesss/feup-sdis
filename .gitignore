@@ -1,0 +1,7 @@
+# ignore hidden files
+.*
+!.gitignore
+
+
+# ignore java executables
+*.class
