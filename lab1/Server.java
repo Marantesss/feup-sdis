@@ -11,11 +11,11 @@ import java.util.Hashtable;
  */
 public class Server {
 
-    public DatagramSocket socket;
+    private DatagramSocket socket;
 
-    public int port;
+    private int port;
 
-    public Hashtable<String,String> table;
+    private Hashtable<String,String> table;
 
     public static void main(String[] args) throws IOException {
 
