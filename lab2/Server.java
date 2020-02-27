@@ -145,7 +145,7 @@ public class Server {
             // send packet
             try {
                 multicastSocket.send(packet);
-                System.out.println("multicast: " + packet.getAddress().toString() + " "  + packet.getPort() + ":" + datagramSocket.getLocalAddress() + " " + datagramSocket.getLocalPort());
+                System.out.println("multicast: " + packet.getAddress() + " "  + packet.getPort() + ":" + datagramSocket.getLocalAddress() + " " + datagramSocket.getLocalPort());
             } catch (IOException e) {
                 e.printStackTrace();
             }
