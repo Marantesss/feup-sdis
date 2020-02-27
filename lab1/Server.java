@@ -72,9 +72,9 @@ public class Server {
 
         String response;
 
-        for (String token : tokens) {
-            token = token.trim();
-            System.out.println(token);
+        for(int i=0; i<tokens.length; i++) {
+            tokens[i] = tokens[i].trim();
+            System.out.println(tokens[i]);
         }
         
         if (tokens[0].equals("register")) {
