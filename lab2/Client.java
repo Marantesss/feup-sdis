@@ -57,8 +57,10 @@ public class Client {
 
         this.socket.receive(packet);
 
-        this.dgramPort = packet.getPort();
-        this.dgramAddress = packet.getAddress();
+        String[] tokens = new String(packet.getData()).split(" ");
+
+        this.dgramAddress = InetAddress.getByName(tokens[0].trim());
+        this.dgramPort = Integer.parseInt(tokens[1].trim());
 
         System.out.println("port: " + dgramPort + " address: " + dgramAddress);
     }

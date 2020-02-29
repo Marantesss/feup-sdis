@@ -138,12 +138,11 @@ public class Server {
     private class AdvertiserTask extends TimerTask {
         @Override
         public void run() {
-            // build packet
-            byte[] buf = Integer.toString(datagramPort).getBytes();
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, multicastAddress, multicastPort);
-
-            // send packet
             try {
+                // build packet
+                byte[] buf = new String(InetAddress.getLocalHost().getHostAddress() + " " + datagramPort).getBytes();
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, multicastAddress, multicastPort);
+                // send packet
                 multicastSocket.send(packet);
                 System.out.println("multicast: " + packet.getAddress() + " "  + packet.getPort() + ":" + datagramSocket.getLocalAddress() + " " + datagramSocket.getLocalPort());
             } catch (IOException e) {
