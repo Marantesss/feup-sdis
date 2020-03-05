@@ -30,9 +30,18 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public void register(String dnsName, String ipAddress) {
-        // TODO Auto-generated method stub
+    public int register(String dnsName, String ipAddress) {
+        int result = -1;
 
+        if (this.table.containsKey(dnsName) == false) {
+            this.table.put(dnsName, ipAddress);
+
+            result = this.table.size();
+        }
+        
+        System.out.println("register " + dnsName + " " + ipAddress + " :: " + result);
+
+        return result;
     }
 
     @Override
