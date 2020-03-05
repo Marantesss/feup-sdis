@@ -46,7 +46,14 @@ public class Server implements ServerInterface {
 
     @Override
     public String lookup(String dnsName) {
-        // TODO Auto-generated method stub
-        return null;
+        if (this.table.containsKey(dnsName) == false) {
+            return null;
+        } else {
+            String ipAddress = dnsName + " " + this.table.get(dnsName);
+
+            System.out.println("lookup " + dnsName + " :: " + ipAddress);
+            
+            return ipAddress;
+        }
     }
 }

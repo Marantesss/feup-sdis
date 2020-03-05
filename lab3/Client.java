@@ -38,9 +38,12 @@ public class Client {
 
             switch(client.oper) {
                 case "lookup":
-                    String response = server.lookup(client.dnsName);
+                    String lookupResponse = server.lookup(client.dnsName);
+                    System.out.println(client.oper + " " + client.dnsName + " :: " + lookupResponse);
                     break;
                 case "register":
+                    int registerResponse = server.register(client.dnsName, client.ipAddress);
+                    System.out.println(client.oper + " " + client.dnsName + " " + client.ipAddress + " :: " + registerResponse);
                     break;
             }
             
