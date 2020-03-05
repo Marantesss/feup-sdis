@@ -30,7 +30,7 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public void register(String dnsName, String ipAddress) {
+    public int register(String dnsName, String ipAddress) {
         // TODO Auto-generated method stub
 
     }
