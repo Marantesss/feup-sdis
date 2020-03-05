@@ -12,10 +12,6 @@ public class Server implements ServerInterface {
         Server server = new Server();
 
         server.create(args);
-
-        while (true) {
-            server.run();
-        }
     }
 
     private void create(String[] args) throws RemoteException {
@@ -24,9 +20,6 @@ public class Server implements ServerInterface {
         registry.rebind(args[0], stub);
 
         this.table = new Hashtable<String, String>();
-    }
-
-    private void run() {
     }
 
     @Override
