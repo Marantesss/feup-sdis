@@ -30,19 +30,14 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public void register() {
+    public void register(String dnsName, String ipAddress) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void lookup() {
+    public String lookup(String dnsName) {
         // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public String sayHello() throws RemoteException {
-        return "Hello, world!";
+        return null;
     }
 }
