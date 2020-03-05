@@ -2,7 +2,7 @@ import java.rmi.Remote;
 
 public interface ServerInterface extends Remote {
 
-	void register();
+	void register(String dnsName, String ipAddress);
 
-	void lookup();
+	String lookup(String dnsName);
 }
