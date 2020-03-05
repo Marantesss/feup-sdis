@@ -8,7 +8,7 @@ public class Server implements ServerInterface {
 
     private Hashtable<String,String> table;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException {
         Server server = new Server();
 
         server.create(args);
@@ -18,10 +18,10 @@ public class Server implements ServerInterface {
         }
     }
 
-    private void create(String[] args) {
+    private void create(String[] args) throws RemoteException {
         ServerInterface stub = (ServerInterface) UnicastRemoteObject.exportObject(this, 0);
         Registry registry = LocateRegistry.getRegistry();
-        registry.bind(args[0], stub);
+        registry.rebind(args[0], stub);
 
         this.table = new Hashtable<String, String>();
     }
@@ -30,7 +30,7 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public int register(String dnsName, String ipAddress) {
+    public int register(String dnsName, String ipAddress) throws RemoteException {
         int result = -1;
 
         if (this.table.containsKey(dnsName) == false) {
@@ -45,7 +45,7 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public String lookup(String dnsName) {
+    public String lookup(String dnsName) throws RemoteException {
         if (this.table.containsKey(dnsName) == false) {
             return null;
         } else {
