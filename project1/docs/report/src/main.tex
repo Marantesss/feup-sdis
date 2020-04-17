@@ -1,0 +1,420 @@
+\documentclass[a4paper]{article}
+
+%use the english line for english reports
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{microtype}
+
+\usepackage{listings}
+% defining color
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+\definecolor{ieeeblue}{RGB}{0,98,155}
+\definecolor{ieeereddark}{RGB}{134, 31, 65}
+\definecolor{ieeebluedark}{RGB}{0, 40, 85}
+% defining style
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{ieeeblue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{22cm}
+
+\title{\Huge\textbf{Distributed Backup Service}\linebreak\linebreak\linebreak
+\Large\textbf{Final Report}\linebreak\linebreak
+\linebreak\linebreak
+\includegraphics[scale=0.1]{feup-logo.png}\linebreak\linebreak
+\linebreak\linebreak
+\Large{Integrated Masters in Informatics and Computing Engineering} \linebreak\linebreak
+\Large{Distributed Systems}\linebreak
+}
+
+\author{\textbf{Grupo T6G09:}\\ César Alves Nogueira - up201706828@fe.up.pt \\ Gonçalo Marantes - up201706917@fe.up.pt \\\linebreak\linebreak \\
+ \\ Faculdade de Engenharia da Universidade do Porto \\ Rua Roberto Frias, s\/n, 4200-465 Porto, Portugal \linebreak\linebreak\linebreak
+\linebreak\linebreak\vspace{1cm}}
+%\date{Junho de 2007}
+\maketitle
+\thispagestyle{empty}
+
+%************************************************************************************************
+%************************************************************************************************
+
+\newpage
+
+\section*{Abstract}
+
+    This project consists of a distributed backup service for a local area network (\textit{LAN}) and was developed using communication protocols, concurrency and synchronization methods learned in the Distributed Systems Course. To achieve the desired performance and methodology we used mainly \textit{UDP} communication, but also \textit{RMI} and \textit{TCP} protocols. Our concurrent approach consists of one thread per Multi-cast Channel and many protocol instances processing requests at a time.
+
+
+\newpage
+
+\tableofcontents
+
+
+%************************************************************************************************
+%************************************************************************************************
+
+%*************************************************************************************************
+%************************************************************************************************
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+    In this project we developed a distributed backup service for a local area network (LAN). The idea is to use the free disk space of the computers in a LAN for backing up files in other computers in the same LAN. The service is provided by servers in an environment that is assumed cooperative. Nevertheless, each server retains control over its own disks and, if needed, may reclaim the space it made available for backing up other computers' files.
+    
+    The main goal of this report is to clarify the key aspects of our implementation, such as:
+
+    \begin{itemize}
+        \item \textbf{Project Structure:} Overall project file structure and java packages choice explanation.
+        
+        \item \textbf{Compilation and Execution Instructions:} Necessary instructions for compiling and correctly executing the developed program in both \textit{Windows} and \textit{Linux} environments. For faster testing and executing we provide auxiliary scripts that help on that matter.
+      
+        \item \textbf{Concurrent Protocol Execution:} Detailed description of methodologies, synchronization methods and data structures used which allow the concurrent execution of different protocols.
+        
+        \item \textbf{Implemented Enhancements:} Detailed description of solutions and implementation.
+    \end{itemize}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Project Structure}
+
+    Our project is divided into 4 folders:
+    
+    \begin{itemize}
+        \item \textit{docs/:} Contains documents regarding this project, such as documentation provided by the professor and this report.
+        
+        \item \textit{scripts/:} Contains \textit{bash} and \textit{batch} scripts to help compile, test and execute the program in different operating systems.
+        
+        \item \textit{src/:} Contains the source code developed during this project.
+        
+        \item \textit{test/:} Contains files to be used by the scripts or manually in order to test the program.
+    \end{itemize}
+    
+    Regarding the \textit{src/} folder, we decided to organize it in packages, each of which are responsible for various key aspects of our implementation:
+    
+    \begin{itemize}
+        \item \textit{channel:} Responsible for communication and request dispatching.
+        
+        \item \textit{exceptions:} Contains custom exceptions for better error handling and code quality.
+        
+        \item \textit{peer:} Contains the main methods for starting sub protocol actions.
+        
+        \item \textit{storage:} Contains classes responsible for information representation and file system manipulation.
+        
+        \item \textit{threads:} Contains all the threads used by peers to perform actions and achieve concurrency.
+        
+        \item \textit{utils:} Contains useful methods and constants used by other packages.
+    \end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Compilation and Execution Instructions}
+
+    \subsection{Compilation}
+
+        In order to compile the source code, we provide both a \textit{Makefile} for \textit{Linux} and a \textit{Batch} file of \textit{Windows}. However for \textit{Linux} the scripts we have developed already take care of most of the work, including starting the \textit{RMI} Registry, hence the user simply needs to run the following command, depending on the Operating System:
+
+\begin{lstlisting}[language=Bash, caption=Executing Compilation Scripts]
+# linux
+sh scripts/setup.sh # compiles source code and starts rmi registry
+# windows
+scripts/setup # compiles source code
+cd src/ # go to source folder
+start rmiregistry # starts rmi registry inside source folder
+\end{lstlisting}
+
+    \subsection{Execution}
+    
+        Finally, there are only 2 steps required to execute the program:
+        
+        \subsubsection*{Executing \textit{MCastSnooper.jar} (Optional)}
+        
+            To execute the provided \textit{MCastSnooper} program, it is only necessary to run the following script:
+        
+\begin{lstlisting}[language=Bash, caption=Executing \textit{MCastSnooper} Scripts]
+# linux
+sh scripts/run_mcastsnooper.sh
+# windows
+scripts/run_mcastsnooper
+\end{lstlisting}
+        
+        \subsubsection*{Executing Peers}
+        
+            The necessary command to execute a Peer (once inside the \textit{src} folder) is the following:
+    
+\begin{lstlisting}[language=Bash, caption=Executing \textit{Peer} Program]
+java peer.Peer <protocol_version> <peerID> <peer_access_point> <MCaddress> <MCport> <MDBaddress> <MDBport> <MDRaddress> <MDRport>
+\end{lstlisting}
+
+            \begin{itemize}
+                \item \textbf{protocol\_version:} Protocol version ("1.0" for standard protocol, "2.0" for enhanced protocol)
+              
+                \item \textbf{peerID:} Peer's unique identifier.
+                
+                \item \textbf{peer\_access\_point:} Access point for \textit{RMI} object.
+                
+                \item \textbf{MCaddress:} IP address for Multi-cast Control channel\footnote{IP multi-cast addresses used should be between \textit{224.0.0.0} and \textit{224.0.0.255}, \textit{i.e} the reserved \textit{IPv4} multi-cast addresses for local sub-networks.}.
+                
+                \item \textbf{MCport:} Port for Multi-cast Control channel.
+                
+                \item \textbf{MDBaddress:} IP address for Multi-cast Data Backup channel.
+                
+                \item \textbf{MDBport:} Port for Multi-cast Data Backup channel.
+                
+                \item \textbf{MDRaddress:} IP address for Multi-cast Data Recovery channel.
+                
+                \item \textbf{MDRport:} port for Multi-cast Data Recovery channel.
+            \end{itemize}
+            
+            However, to execute a desired number of peers without going through this much trouble we provide scripts that execute various peer programs. To run these scripts one must only execute the following commands:
+        
+\begin{lstlisting}[language=Bash, caption=Executing \textit{Peer} Program Scripts]
+# linux
+sh scripts/run_peer.sh <protocol_version> <num_peers>
+# windows
+scripts/run_peer <protocol_version> <num_peers>
+\end{lstlisting}
+
+            \begin{itemize}
+                \item \textbf{protocol\_version:} Protocol version ("1.0" for standard protocol, "2.0" for enhanced protocol)
+              
+                \item \textbf{num\_peers:} Number of peers that are going to execute.
+            \end{itemize}
+            
+        \subsubsection*{Executing \textit{TestApp}}
+        
+            To execute the client program (once inside the \textit{src} folder) it is necessary to run the following command:
+            
+\begin{lstlisting}[language=Bash, caption=Executing \textit{TestApp} Program]
+java TestApp <peer_ap> <sub_protocol> [ <opnd_1> | [ <opnd_2> ] ]
+\end{lstlisting}
+
+            \begin{itemize}
+                \item \textbf{peer\_ap:} Access point for \textit{RMI} object.
+              
+                \item \textbf{sub\_protocol:} Operation that the peer must execute (BACKUP, RESTORE, DELETE, RECLAIM).
+                
+                \item \textbf{opnd\_1:} Can be either the directory of the desired file (BACKUP, RESTORE and DELETE sub-protocols). Or the maximum amount of disk space (in \textit{KBytes} the peer can use (RECLAIM sub-protocol).
+                
+                \item \textbf{opnd\_2:} Used in the BACKUP protocol to specify the desired replication degree of the backed up file.
+            \end{itemize}
+            
+            Once again, to simply this process, a test script is provided for faster testing:
+
+\begin{lstlisting}[language=Bash, caption=Executing \textit{TestApp} Program]
+# linux
+sh scripts/run_test.sh
+# windows
+scripts/run_test
+\end{lstlisting}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Concurrent Protocol Execution}
+
+    To guarantee concurrency and given that peers can "share" resources, \textit{i.e.} these resources are not shared but require consistency in every peer so they must be exactly the same. Also, inside a protocol there are many messages being sent and received at the same time. And finally, a peer can store and send various file chunks at the same time.
+    \newline
+    
+    The first step to achieve concurrency was to require the use of \textit{threads}, and in order to coordinate thread execution we decided to use the \textit{java.util.concurrent} \textit{API}. This \textit{API} provides classes such as \textit{ScheduledThreadPoolExecutor}, which makes it easy to execute and schedule thread execution. This class also recycles threads, this makes the program have a faster performance due to the fact that creating and destroying threads is a rather heavy process. Scheduling threads also made it possible, in most cases, to avoid the use of \textit{Thread.sleep()}.
+    \newline
+    
+    Our \textit{multi-threading} design is as follows:
+    
+    \begin{itemize}
+        \item When a peer is initialized, it executes 3 \textit{Threads}, 1 per multi-cast channel. These \textit{Threads} are responsible for sending and receiving data from their respectful channel. When receiving a message, they dispatch it to the \textit{MessageReceiverManagerThread} class, which analyses the message type and dispatches the request to the appropriate \textit{Thread} to handle it. This means that we can have multiple \textit{Threads} handling requests as they arrive, achieving concurrency.
+        
+\begin{lstlisting}[language=Java, caption=Channel Class \textit{run} Method]
+@Override
+public void run() {
+    // Create a new Multicast socket that will allow
+    // other programs to join it as well.
+    try (MulticastSocket socket = new MulticastSocket(this.port)) {
+        // Join the Multicast group.
+        socket.joinGroup(this.address);
+        // Buffer of bytes to store the incoming bytes
+        // containing the information from some other peer.
+        // Since the message includes:
+        //  - A header: less 100 bytes
+        //  - A Body: Max of 64KB = 64 000 bytes
+        // A buffer of size 65KB is enough
+        byte[] buffer = new byte[65 * 1000];
+        // Listen for messages
+        while (true) {
+            // Receive packet
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            socket.receive(packet);
+            // Clean buffer and dispatch to peer's message receiver managing thread
+            byte[] message = Arrays.copyOf(buffer, packet.getLength());
+            this.peer.getScheduler().execute(new MessageReceiverManagerThread(message, this.peer));
+        }
+
+    } catch (IOException e) {
+        System.err.println(e.getMessage());
+        e.printStackTrace();
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Java, caption=\textit{MessageReceiverManagerThread} Class \textit{run} Method]
+@Override
+public void run() {
+    // get message type
+    String messageType = new String(this.message).split(" ")[1];
+    // pick a random waiting time between o and 400 ms
+    int waitingTime = Utils.getRandomNumber(0, 400);
+
+    // dispatch message request to working threads
+    switch (messageType) {
+        case "PUTCHUNK":
+            this.peer.getScheduler().schedule(new PutChunkThread(message, this.peer), waitingTime, TimeUnit.MILLISECONDS);
+            break;
+        case "STORED":
+            this.peer.getScheduler().execute(new StoredThread(message, this.peer));
+            break;
+        case "GETCHUNK":
+            this.peer.getScheduler().execute(new GetChunkThread(message, this.peer));
+            break;
+        case "CHUNK":
+            this.peer.getScheduler().execute(new ChunkThread(message, this.peer));
+            break;
+        case "DELETE":
+            this.peer.getScheduler().execute(new DeleteThread(message, this.peer));
+            break;
+        case "DELETEACK":
+            this.peer.getScheduler().execute(new DeleteAckThread(message, this.peer));
+            break;
+        case "AVAILABLE":
+            this.peer.getScheduler().execute(new AvailableThread(message, this.peer));
+            break;
+        case "REMOVED":
+            this.peer.getScheduler().execute(new RemovedThread(message, this.peer));
+            break;
+    }
+}
+\end{lstlisting}
+        
+        \item In every protocol that requires communication between peers, \textit{i.e.} excluding STATE, the \textit{MessageSenderManagerThread} class is responsible for sending the desired message to the respectful multi-cast channel. Since we create a new instance of \textit{MessageSenderManagerThread} with the \textit{ThreadPoolExecutor}, we have achieve protocol concurrency when sending various messages.
+        
+\begin{lstlisting}[language=Java, caption=\textit{Peer} Class \textit{backup} Method]
+@Override
+public void backup(String path, int replication) throws RemoteException {
+    StorageFile file = new StorageFile(path, replication);
+    this.storage.addFile(file);
+
+    ArrayList<Chunk> chunks = file.getChunks();
+
+    for (Chunk chunk : chunks) {
+        byte[] message = generatePutChunkMessage(chunk, this.protocolVersion, this.peerID, chunk.getFileID(), chunk.getNumber(), replication);
+        this.scheduler.execute(new MessageSenderManagerThread(message, "MDB", this));
+        this.scheduler.schedule(new ConfirmationCollectorThread(this, message, replication), 1, TimeUnit.SECONDS);
+    }
+}
+\end{lstlisting}
+        
+\begin{lstlisting}[language=Java, caption=\textit{MessageSenderManagerThread} Class \textit{run} Method]
+@Override
+public void run() {
+    System.out.println(this.getInfo());
+    this.peer.getChannel(this.channelKey).sendMessage(this.message);
+}
+\end{lstlisting}
+        
+        \item Thanks to the \textit{ScheduledThreadPoolExecutor} we do not need to worry about the number of running \textit{Threads}, due to the fact that this number is limited and handled by the Java \textit{API}.
+        
+        \item For storing \textit{Chunks} and other information accessed by multiple \textit{threads}, such as channel responsible threads, we decided to use \textit{ConcurrentHashMap}. The main advantage of using this type of \textit{HashMap} is the assurance of correct behavior when being accessed by multiple threads.
+    \end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implemented Enhancements}
+
+    According to this project's specifications we had the opportunity to upgrade the specified version of the BACKUP, RESTORE and DELETE sub-protocols. This section will explain how we implemented this enhanced versions of said sub-protocols.
+    
+    \subsection{Restore sub-protocol}
+    
+        \subsubsection{Proposed Enhancement}
+        
+            The main problem with the initial version of this sub-protocol is that we are using a multi-cast channel for sending the requested chunk, because only one peer needs to receive it. The implemented enhancements uses the \textit{TCP} communication protocol for a direct link between the initiator and the replying peer.
+        
+        \subsubsection{Implementation}
+        
+            When the initiator peer starts the sub-protocol it sends \textit{GETCHUNK} messages and in return hopes to receive \textit{CHUNK} messages. For this it initializes a communication socket where the replying peer can send \textit{CHUNK} messages. And also a new thread created with \textit{TCPChunkThread} class that "listens" for messages on the newly created socket.
+
+            After that all \textit{GETCHUNK} messages are sent, when a peer that is storing the requested file chunks receives one of these messages, they start a new thread with the help of \textit{TCPGetChunkThread} class. This thread is responsible for replying with the requested chunk via the created \textit{TCP} channel.
+            
+            To avoid duplicate chunks being sent by two distinct peers, the initiator peer first receives a request from other peers "asking" if the requested chunk was already received. This is done by first the replying peer sending the requested chunk's number, upon receiving this number the initiator peer checks to see if that chunk has been received from another peer, and it responds with a Boolean value accordingly. After receiving this response, the replying peer either sends the requested chunk or does nothing.
+            
+            This process is repeated until the initiator peer receives all requested chunks.
+    
+    \subsection{Delete sub-protocol}
+    
+        \subsubsection{Proposed Enhancement}
+
+            The problem with the original approach is that if a peer that backs up some chunks of the file is not running at the time the initiator peer sends a DELETE message for that file, the space used by these chunks will never be reclaimed. To solve this issue we have created two new messages which are described bellow.
+        
+        \subsubsection{Implementation}
+        
+            The new messages we have created are the following:
+            
+            \begin{itemize}
+                \item \textit{ANNOUNCE:} This message is sent every time a peer is initiated, so every peer know which peers are online.
+                
+                \item \textit{ACKDELETE:} This message is sent when a peer successfully deletes the requested file's chunks, because of this acknowledgment the initiator peer can keep track of which peers have successfully deleted the requested file.
+            \end{itemize}
+            
+            With the use of these new messages, even if a peer that is storing some chunks related to the specified deleted file, when it comes online it will announce itself. After receiving this \textit{ANNOUNCE} message, the initiator peer can re-send the \textit{DELETE} message, which will be handles by the just online peer, and in return will reply with a \textit{ACKDELETE} message.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+
+    Having completed this project we have learned a lot about thread-based concurrency using the Java \textit{API} but most importantly message exchanging using multiple communication protocols.
+
+\clearpage
+%\addcontentsline{toc}{section}{Bibliografia}
+\renewcommand\refname{References}
+\bibliographystyle{apalike}
+\bibliography{myrefs}
+
+\begin{thebibliography}{00}
+    % ConcurrentHashMap
+    \bibitem{b1} docs.oracle.com. (2020). ConcurrentHashMap (Java Platform SE 8). [online] Available at: https://docs.oracle.com/javase/8/docs/api/java/util /concurrent/ConcurrentHashMap.html
+    % ScheduledThreadPoolExecutor
+    \bibitem{b2} docs.oracle.com. (2020). ScheduledThreadPoolExecutor (Java SE 9 \& JDK 9) [online] Available at: https://docs.oracle.com/javase/9/docs/api/java/util /concurrent/ScheduledThreadPoolExecutor.html
+    % SHA-256
+    \bibitem{b3} baeldung.com. (2020). SHA-265 Hashing in Java | Baeldung [online] Available at: https://www.baeldung.com/sha-256-hashing-java
+    % OS Separator
+    \bibitem{b4} stackoverflow.com. (2019). How do I programmatically determine operating system in Java? - Stack Overflow. [online] Available at: https://stackoverflow.com/questions/228477/how-do-i-programmatically-determine-operating-system-in-java
+    % Java Serialization
+    \bibitem{b5} tutorialspoint.com. (2020). Java - Serialization - Tutorialspoint. [online] Available at: https://www.tutorialspoint.com/java/java\_serialization.htm
+    
+\end{thebibliography}
+
+\end{document}

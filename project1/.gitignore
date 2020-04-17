@@ -1,0 +1,13 @@
+# ignore hidden files
+.*
+!.gitignore
+
+
+# ignore java executables
+*.class
+
+# ignore build files
+**/build
+
+# peer files
+**/peer_*
